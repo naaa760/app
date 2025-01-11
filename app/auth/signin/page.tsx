@@ -1,10 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { Sparkles, Loader } from "lucide-react";
 
 export default function SignIn() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -39,26 +44,38 @@ export default function SignIn() {
     return isValid;
   };
 
-  interface FormData {
-    email: string;
-    password: string;
-  }
-
-  interface FormErrors {
-    email: string;
-    password: string;
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast({
+          title: "Error",
+          description: "Invalid email or password",
+          variant: "destructive",
+        });
+      } else {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      console.log("Form submitted:", formData);
-    }, 1500);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +131,7 @@ export default function SignIn() {
                     className="w-full bg-white/70 border-purple-100 focus:border-purple-300 focus:ring focus:ring-purple-200 focus:ring-opacity-50"
                     value={formData.email}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                   {errors.email && (
                     <p className="text-sm text-red-500">{errors.email}</p>
@@ -131,6 +149,7 @@ export default function SignIn() {
                     className="w-full bg-white/70 border-purple-100 focus:border-purple-300 focus:ring focus:ring-purple-200 focus:ring-opacity-50"
                     value={formData.password}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                   {errors.password && (
                     <p className="text-sm text-red-500">{errors.password}</p>
@@ -139,8 +158,8 @@ export default function SignIn() {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
                   className="w-full bg-gradient-to-r from-purple-400 to-gray-400 hover:from-purple-500 hover:to-gray-500 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  disabled={isLoading}
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
