@@ -19,6 +19,8 @@ const nextConfig = {
     // Disable webpack cache
     webpackBuildWorker: false,
   },
+  distDir: ".next",
+  output: "standalone",
 };
 
 module.exports = nextConfig;
