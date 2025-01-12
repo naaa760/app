@@ -16,28 +16,28 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Email and password are required.");
         }
 
+        // Find the user by email
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
+          where: { email: credentials.email },
         });
 
         if (!user) {
-          return null;
+          throw new Error("User not found.");
         }
 
+        // Verify the password
         const isPasswordValid = await compare(
           credentials.password,
           user.password
         );
-
         if (!isPasswordValid) {
-          return null;
+          throw new Error("Invalid password.");
         }
 
+        // Return the user object
         return {
           id: user.id.toString(),
           email: user.email,
@@ -68,6 +68,8 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/error",
   },
 };
 

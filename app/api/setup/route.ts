@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 
 export async function POST() {
   try {
-    // Check if any user exists
     const userCount = await prisma.user.count();
     if (userCount > 0) {
       return NextResponse.json(
@@ -13,7 +12,6 @@ export async function POST() {
       );
     }
 
-    // Create admin user
     const hashedPassword = await bcrypt.hash("admin123", 10);
     const user = await prisma.user.create({
       data: {

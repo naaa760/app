@@ -141,7 +141,6 @@ export default function SignIn() {
         </div>
       </div>
 
-      {/* Floating background elements */}
       <div className="fixed top-20 left-[20%] w-64 h-64 bg-gradient-to-r from-purple-300/20 to-gray-200/20 rounded-full blur-3xl animate-[float_6s_ease-in-out_infinite]" />
       <div className="fixed bottom-20 right-[20%] w-72 h-72 bg-gradient-to-r from-gray-300/20 to-purple-200/20 rounded-full blur-3xl animate-[float-delay_6s_ease-in-out_infinite]" />
     </div>

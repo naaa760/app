@@ -31,17 +31,33 @@ export default function Home() {
     },
   ];
 
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+      }
+      @keyframes float-delay {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(20px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-gray-100 to-purple-100">
-      {/* Hero Section */}
       <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-200/20 via-gray-200/20 to-purple-100/20" />
 
-        {/* Floating elements */}
         <div className="absolute top-20 left-[20%] w-64 h-64 bg-gradient-to-r from-purple-300/20 to-gray-200/20 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-20 right-[20%] w-72 h-72 bg-gradient-to-r from-gray-300/20 to-purple-200/20 rounded-full blur-3xl animate-float-delay" />
 
-        {/* Hero Content */}
         <div
           className={`relative z-10 max-w-6xl mx-auto px-4 py-20 text-center transition-opacity duration-1000 ${
             isLoaded ? "opacity-100" : "opacity-0"
@@ -87,7 +103,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 bg-white/50">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-500 to-gray-500 bg-clip-text text-transparent">
@@ -114,7 +129,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Call to Action Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-gray-100/50" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
@@ -137,7 +151,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-white/30 backdrop-blur-sm border-t border-purple-100">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center text-gray-600">
@@ -148,17 +161,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Add keyframes for animations
-const style = document.createElement("style");
-style.textContent = `
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
-  @keyframes float-delay {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(20px); }
-  }
-`;
-document.head.appendChild(style);
