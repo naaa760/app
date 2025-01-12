@@ -2,9 +2,17 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "./ui/button";
+import { usePathname, useRouter } from "next/navigation";
 
 export function Nav() {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/");
+  };
 
   return (
     <nav className="border-b">
@@ -16,25 +24,46 @@ export function Nav() {
         <div className="flex items-center gap-4">
           {session ? (
             <>
-              <span className="text-sm text-gray-600">
-                Welcome, {session.user?.name}
-              </span>
-              {(session.user as any).role === "ADMIN" && (
-                <Link href="/admin">
-                  <Button variant="outline">Admin Console</Button>
+              <Link
+                href="/items"
+                className={`text-sm ${
+                  pathname === "/items"
+                    ? "text-purple-600 font-medium"
+                    : "text-gray-600 hover:text-purple-600"
+                }`}
+              >
+                Items
+              </Link>
+              {session.user?.email === "admin@bauai.com" && (
+                <Link
+                  href="/admin"
+                  className={`text-sm ${
+                    pathname === "/admin"
+                      ? "text-purple-600 font-medium"
+                      : "text-gray-600 hover:text-purple-600"
+                  }`}
+                >
+                  Admin
                 </Link>
               )}
+              <span className="text-sm text-gray-600">
+                {session.user?.name || session.user?.email}
+              </span>
               <Button
                 variant="ghost"
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={handleSignOut}
+                className="text-gray-600 hover:text-purple-600"
               >
                 Sign Out
               </Button>
             </>
           ) : (
-            <Link href="/auth/signin">
-              <Button>Sign In</Button>
-            </Link>
+            <Button
+              onClick={() => router.push("/auth/signin")}
+              className="bg-gradient-to-r from-purple-400 to-gray-400 hover:from-purple-500 hover:to-gray-500 text-white"
+            >
+              Sign In
+            </Button>
           )}
         </div>
       </div>

@@ -35,13 +35,30 @@ export async function POST(request: Request) {
     }
 
     const json = await request.json();
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email! },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const item = await prisma.item.create({
       data: {
         title: json.title,
         description: json.description,
-        createdBy: (session.user as any).id,
+        createdBy: user.id,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
       },
     });
+
     return NextResponse.json(item);
   } catch (error) {
     return NextResponse.json(
@@ -59,32 +76,40 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const itemId = searchParams.get("id");
 
-    if (!id) {
+    if (!itemId) {
       return NextResponse.json(
         { error: "Item ID is required" },
         { status: 400 }
       );
     }
 
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email! },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const item = await prisma.item.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(itemId) },
     });
 
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
-    if (
-      item.createdBy !== (session.user as any).id &&
-      (session.user as any).role !== "ADMIN"
-    ) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (item.createdBy !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Not authorized to delete this item" },
+        { status: 403 }
+      );
     }
 
     await prisma.item.delete({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(itemId) },
     });
 
     return NextResponse.json({ message: "Item deleted successfully" });
